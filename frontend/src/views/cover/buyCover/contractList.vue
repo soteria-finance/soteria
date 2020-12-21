@@ -16,7 +16,7 @@
         </el-form-item>
         <el-form-item>
           <div class="secondary-text">
-            <svg-icon icon-class="circle" class="icon"></svg-icon>
+            <svg-icon icon-class="circle" class="icon error-color"></svg-icon>
             Find and select the contract you want to cover.
           </div>
         </el-form-item>
@@ -91,11 +91,10 @@ export default {
     });
   },
   methods: {
-    initData(){
-      getCoverContracts(this).then(res=>{
-        this.contracts = res.data;
-        this.oldContracts = JSON.parse(JSON.stringify(res.data));
-      });
+    async initData(){
+      const contracts = await getCoverContracts(this)
+      this.contracts = contracts.data;
+      this.oldContracts = JSON.parse(JSON.stringify(contracts.data));
       if(this.web3Status === this.WEB3_STATUS.AVAILABLE){
         this.initContract();
       }

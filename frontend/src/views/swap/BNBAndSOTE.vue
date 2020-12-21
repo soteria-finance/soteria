@@ -22,7 +22,7 @@
                   <div slot="header" class="clearfix">
                     <span>Amount</span>
                     <el-link v-if="showReset" @click="form.amount='0'" type="primary" style="float: right; padding: 3px 0" :underline="false">Reset</el-link>
-                    <el-link v-else @click="form.amount=balance.toString()" type="success" :underline="false" style="float: right; padding: 3px 0">Max</el-link>
+                    <el-link v-else @click="form.amount=balanceValue.toString()" type="success" :underline="false" style="float: right; padding: 3px 0">Max</el-link>
                   </div>
                   <div>
                     <el-form-item prop="amount">
@@ -61,11 +61,11 @@
         </el-row>
         <el-row>
             <div class="tip normal-text" v-if="member.isMember">
-                <svg-icon icon-class="circle" class="icon"></svg-icon>
+                <svg-icon icon-class="circle" class="icon error-color"></svg-icon>
                 Rate is set at transaction time and therefore could change.
             </div>
             <div class="tip normal-text" v-else>
-                <svg-icon icon-class="circle" class="icon"></svg-icon>
+                <svg-icon icon-class="circle" class="icon error-color"></svg-icon>
                 This address is not a member. Please make sure you have the correct address connected, or become a member.
             </div>
         </el-row>
@@ -141,6 +141,13 @@
                 console.error(e);
                 return 'N/A';
             }
+        },
+        balanceValue(){
+            try{
+                return this.$etherToValue(this.member.balance);
+            }catch(e){
+                return 0;
+            }
         }
       },
       watch: {
@@ -176,7 +183,7 @@
         async getRate(){
             const rate = await getRate(this);
             this.rateBN = rate.toString();
-            this.rate = this.$etherToNumber(this.rateBN, "ether");
+            this.rate = this.$etherToValue(this.rateBN);
             console.info("Current rate:", this.rate);
         },
         switchType(){
@@ -207,6 +214,7 @@
                     contract.instance.buyToken({ from: this.$CustomWeb3.account, value: fee }).then(response => {
                       console.info(response, response.toString());
                       this.$message.success("Buy SOTE successfully!");
+                      this.$emit("refresh");
                       this.loading = false;
                     }).catch((e) => {
                       console.error(e);
@@ -219,6 +227,7 @@
                     contract.instance.sellNXMTokens(realfee, { from: this.$CustomWeb3.account }).then(response => {
                       console.info(response, response.toString());
                       this.$message.success("Sell SOTE successfully!");
+                      this.$emit("refresh");
                       this.loading = false;
                     }).catch((e) => {
                       console.error(e);
@@ -236,6 +245,7 @@
           });
         },
         validateAmount(rule, value, callback){
+          try{
             const result = /^((0(\.[0-9]+)?)|([1-9][0-9]*(\.[0-9]+)?))$/g.test(value);
             if(!result){
                 callback(new Error('Please enter a valid amount'));
@@ -253,6 +263,9 @@
                 return;
             }
             callback();
+          }catch(e){
+            callback(new Error(e.message));
+          }
         },
         toMembership(){
           this.$router.replace("/start/member");

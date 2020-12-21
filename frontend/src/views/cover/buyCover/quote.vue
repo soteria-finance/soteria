@@ -29,7 +29,7 @@
                 </el-card>
               </el-row>
               <el-row class="tips">
-                <svg-icon icon-class="circle" class="icon"></svg-icon>
+                <svg-icon icon-class="circle" class="icon error-color"></svg-icon>
                 Enter the amount you want to be covered for.
               </el-row>
               <el-row>
@@ -49,7 +49,7 @@
                 </el-card>
               </el-row>
               <el-row class="tips">
-                <svg-icon icon-class="circle" class="icon"></svg-icon>
+                <svg-icon icon-class="circle" class="icon error-color"></svg-icon>
                 Enter the number of days to be covered for.
               </el-row>
             </el-col>
@@ -127,7 +127,7 @@ export default {
     },
     //只允许输入合法的数字
     checkAmount(value){
-      let newValue = this.getNumber(value);
+      let newValue = this.getNumber(value).replace(/\./g, "");
       this.options.amount = newValue;
       return newValue;
     },

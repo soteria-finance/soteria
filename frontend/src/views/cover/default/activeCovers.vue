@@ -44,13 +44,15 @@
       prop="status" width="150"
       label="STATUS">
       <template slot-scope="scope">
-        {{coverStatus[parseInt(scope.row.status)]}}
+        <el-tag :type="coverStatusColors[scope.row.status]" :class="{ 'el-tag-blue': coverStatusColors[scope.row.status]=='' }">
+          {{coverStatus[parseInt(scope.row.status)]}}
+        </el-tag>
       </template>
     </el-table-column>
     <el-table-column width="100"
       label="ACTIONS">
       <template slot-scope="scope">
-        <el-link type="primary" :disabled="scope.row.status==3 || scope.row.status==4" :underline="false" @click="claim(scope.row)">Claim</el-link>
+        <el-link type="primary" :disabled="cannotClaim(scope.row)" :underline="false" @click="claim(scope.row)">Claim</el-link>
       </template>
     </el-table-column>
   </el-table>
@@ -61,7 +63,7 @@ import { watch } from '@/utils/watch.js';
 import { mapGetters } from 'vuex';
 import QuotationDataContract from '@/services/QuotationData';
 import Moment from 'moment';
-import { getCoverContracts } from '@/api/cover.js';
+import { getCoverContracts, loadCover } from '@/api/cover.js';
 
 export default {
   name: "ActiveCovers",
@@ -73,6 +75,8 @@ export default {
       activeCovers: [],
       QuotationData: null,
       coverStatus: [ "Active", "Claim Accepted", "Claim Denied", "Cover Expired", "Claim Submitted", "Requested" ],
+      coverStatusColors: [ "", "success", "danger", "warning", "", "" ],
+      key: "member_cover_",
     }
   },
   computed: {
@@ -81,9 +85,17 @@ export default {
       'member',
       'web3Status',
     ]),
+
   },
   watch: {
     web3Status: watch.web3Status,
+    "member.isMember": {
+      handler(newVal){
+        if(newVal){
+          this.initData();
+        }
+      }
+    }
   },
   created(){
     this.initData();
@@ -106,34 +118,20 @@ export default {
         if(!this.member.isMember){
           return;
         }
-        this.loading = true;
         this.activeCovers.splice(0, this.activeCovers.length);
         const instance = this.QuotationData.getContract().instance;
         const ids = await instance.getAllCoversOfUser(this.member.account);
-        const response = await getCoverContracts();
+        const response = await getCoverContracts(this);
         const contracts = response.data;
-        ids.forEach(async (id) => {
+
+        for(let i=ids.length - 1; i>=0; i--){
           try{
-            const statusObj = await instance.getCoverDetailsByCoverID2(id.toString());
-            const nonStatusObj = await instance.getCoverDetailsByCoverID1(id.toString());
-            const contlist = contracts.filter(item=>item.address == nonStatusObj._scAddress.toString());
-            this.activeCovers.push({
-              cid: statusObj.cid.toString(),
-              sumAssured: statusObj.sumAssured.toString(),
-              coverPeriod: statusObj.coverPeriod.toString(),
-              validUntil: statusObj.validUntil.toString(),
-              purchase: (parseInt(statusObj.validUntil.toString()) - parseInt(statusObj.coverPeriod.toString()) * 24 * 60 * 60),
-              status: statusObj.status.toString(),
-              premiumNXM: nonStatusObj.premiumNXM.toString(),
-              currencyCode: nonStatusObj._currencyCode.toString(),
-              scAddress: nonStatusObj._scAddress.toString(),
-              memberAddress: nonStatusObj._memberAddress.toString(),
-              contract: contlist.length == 1 ? contlist[0] : null,
-            });
+            let cover = await loadCover(this, ids[i], true, contracts);
+            this.activeCovers.push(cover);
           }catch(e){
             console.error(e);
           }
-        });
+        }
       }catch(e){
         this.loading = false;
         console.info(e);
@@ -151,6 +149,9 @@ export default {
     formatStatus(row){
 
     },
+    cannotClaim(row){
+      return row.status==1 ||row.status==3 || row.status==4 || row.status==5;
+    },
     claim(row){
       this.$router.push({ name: this.$RouteNames.COVER_CLAIM, params: JSON.parse(JSON.stringify(row)) });
     }
@@ -163,6 +164,11 @@ export default {
   .icon-name{
     vertical-align: middle;
     margin-right: 10px;
+  }
+  .el-tag-blue{
+    background-color: #ecf5ff;
+    color: #409eff;
+    border: 1px solid #d9ecff;
   }
 }
 </style>

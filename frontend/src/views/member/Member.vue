@@ -45,6 +45,8 @@
             </el-table-column>
       </el-table>
     </el-card>
+    <br />
+    <withdraw />
   </div>
 </template>
 
@@ -56,10 +58,11 @@ import { watch } from '@/utils/watch.js';
 import memberData from '@/views/member/data/memberData.json';
 import { getMemberData } from '@/api/member.js';
 import { BigNumber } from 'bignumber.js';
+import withdraw from './withdraw';
 
 export default {
   name: 'Membership',
-  components:{},
+  components:{ withdraw },
   data() {
     return {
       loading : false,
@@ -136,7 +139,7 @@ export default {
       if(column.property == "amount"){
         return this.$etherToNumber(this.member[row.amount]);
       }
-      if(column.property == "withdrawable" && row.withdrawable!="0"){
+      if(column.property == "withdrawable" && row.withdrawable && row.withdrawable!="0"){
         return this.$etherToNumber(this.member[row.withdrawable]);
       }
       if(row[column.property] == undefined || row[column.property] == null){

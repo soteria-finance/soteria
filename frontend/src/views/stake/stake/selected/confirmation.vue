@@ -1,16 +1,27 @@
 <template>
     <div id="stake-stake-selected-confirm" class="secondary-text">
+      <div>
+        <highlight>Before</highlight>
+      </div>
       <el-form label-width="150px">
-        <el-form-item label="Stake Increment:">
-            {{incrementAmount}} SOTE
+        <el-form-item label="Stake:">
+            {{beforeStake}} SOTE
         </el-form-item>
-        <el-form-item label="Total Stake:">
-            {{usedAmount}} SOTE
+        <el-form-item label="Deposit:">
+            {{beforeTotalDeposit}} SOTE
         </el-form-item>
-        <el-form-item label="Deposit Increment:">
-            {{options.perAmount}} SOTE
+        <el-form-item label="Contracts:">
+            {{beforeLength}}
         </el-form-item>
-        <el-form-item label="Total Deposit:">
+      </el-form>
+      <div>
+        <highlight>After</highlight>
+      </div>
+      <el-form label-width="150px">
+        <el-form-item label="Stake:">
+            {{usedAmountShow}} SOTE
+        </el-form-item>
+        <el-form-item label="Deposit:">
             {{totalDeposit}} SOTE
         </el-form-item>
         <el-form-item label="Contracts:">
@@ -18,7 +29,7 @@
         </el-form-item>
       </el-form>
       <el-row v-if="isInsufficientAllowance" class="error">
-        <svg-icon icon-class="circle" class="icon-name"></svg-icon>
+        <svg-icon icon-class="circle" class="icon-name error-color"></svg-icon>
         Insufficient Allowance
       </el-row>
     </div>
@@ -54,17 +65,30 @@ export default {
       return this.options.selectedProject.map(item=>BigNumber(item.stake).plus(item.ownerStaked))
                             .reduce((total, item)=>BigNumber(total?total:0).plus(item?item:0));
     },
-    // 本次增加的stake
-    incrementAmount(){
+    // 已经stake的总和
+    usedAmountShow(){
       // 计算总和
       if(this.options.selectedProject.length==0){
         return 0;
       }
-      return this.options.selectedProject.map(item=>BigNumber(item.stake))
-                            .reduce((total, item)=>BigNumber(total?total:0).plus(item?item:0));
+      return BigNumber(this.options.selectedProject.map(item=>BigNumber(item.stake).plus(item.ownerStaked))
+                            .reduce((total, item)=>BigNumber(total?total:0).plus(item?item:0))).toFixed(2, 1);
+    },
+    beforeStake(){
+      return BigNumber(this.options.selectedProject.map(item=>item.ownerStaked)
+                            .reduce((total, item)=>BigNumber(total?total:0).plus(item?item:0))).toFixed(2, 1);
+    },
+    beforeTotalDeposit(){
+      return BigNumber(this.options.totalAmount.toString()).toFixed(2, 1);
     },
     totalDeposit(){
-      return BigNumber(this.options.totalAmount.toString()).plus(this.options.perAmount).toString();
+      return BigNumber(this.options.totalAmount.toString()).plus(this.options.perAmount).toFixed(2, 1);
+    },
+    perAmount(){
+      return BigNumber(this.options.perAmount).toFixed(2, 1);
+    },
+    beforeLength(){
+      return this.options.selectedProject.filter(item => item.stakedStatus == 'staked').length;
     },
     isInsufficientAllowance(){
       return false;

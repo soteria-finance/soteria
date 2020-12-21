@@ -3,6 +3,8 @@ const path = require('path')
 const defaultSettings = require('./src/settings.js')
 const ParallelUglifyPlugin = require('webpack-parallel-uglify-plugin');
 
+require('events').EventEmitter.defaultMaxListeners = 0;
+
 function resolve(dir) {
   return path.join(__dirname, dir)
 }
@@ -32,6 +34,7 @@ module.exports = {
   productionSourceMap: false,
   devServer: {
     port: port,
+    hot: true,
     open: true,
     overlay: {
       warnings: false,

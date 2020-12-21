@@ -6,10 +6,10 @@
       <div style="margin-bottom: 20px;">
         <el-form label-width="120px" label-position="left">
           <el-form-item label="Pending:">
-            {{unstaked}} SOTE
+            {{$toFixed(unstaked)}} SOTE
           </el-form-item>
           <el-form-item label="Available:">
-            {{options.available}} Unknown SOTE
+            {{$toFixed(available)}} SOTE
           </el-form-item>
           <el-form-item label="Contracts:">
             {{options.stakedProjects.length}}
@@ -49,6 +49,10 @@ export default {
     ]),
     unstaked(){
       return this.options.stakedProjects.map(item => item.unstaked).reduce((total, item) => BigNumber(total?total:0).plus(item?item:0)).toString();
+    },
+    available(){
+      return this.options.stakedProjects.filter(item => !item.unstaked || BigNumber(item.unstaked).eq(0))
+        .map(item => item.ownerStaked).reduce((total, item) => BigNumber(total?total:0).plus(item?item:0)).toString();
     }
   },
   watch: {

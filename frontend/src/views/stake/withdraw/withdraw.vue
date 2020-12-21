@@ -38,7 +38,7 @@
     </el-row>
     <el-row class="normal-text" style="line-height: 25px;margin-top: 10px;">
       <svg-icon icon-class="circle" class="icon-name"></svg-icon>
-      You can withdraw {{$etherToNumber(options.maxWithdraw)}} SOTE maximum.
+      You can withdraw {{$etherToValue(options.maxWithdraw)}} SOTE maximum.
     </el-row>
     </el-form>
   </el-card>
@@ -90,7 +90,7 @@ export default {
       return percent.gt(100) ? 100 : parseFloat(percent.toFixed(2).toString());
     },
     remainingDeposit(){
-      return BigNumber(this.options.deposit).minus(this.options.withdraw).toString();
+      return BigNumber(this.options.deposit).minus(this.options.withdraw).toFixed(2, 1);
     }
   },
   watch: {
@@ -128,9 +128,9 @@ export default {
         return;
       }
       
-      if(vBN.gt(this.$etherToNumber(this.options.maxWithdraw))){
+      if(vBN.gt(this.$etherToValue(this.options.maxWithdraw))){
         console.info("不能超过最大值");
-        callback(new Error(`You can withdraw ${this.$etherToNumber(this.options.maxWithdraw)} SOTE maximum.`));
+        callback(new Error(`You can withdraw ${this.$etherToValue(this.options.maxWithdraw)} SOTE maximum.`));
         return;
       }
       callback();

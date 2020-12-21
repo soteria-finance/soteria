@@ -27,8 +27,8 @@
               <span>Total deposit</span>
             </div>
             <div>
-              <el-form-item prop="totalAmount">
-                  <el-input disabled class="right-input" :value="totalAmount">
+              <el-form-item prop="totalAmountShow">
+                  <el-input disabled class="right-input" :value="totalAmountShow">
                       <template slot="append">
                           SOTE
                       </template>
@@ -40,9 +40,9 @@
         </el-col>
       </el-row>
       <el-row class="normal-text" style="line-height: 25px;margin-top: 10px;">
-        <svg-icon icon-class="circle" class="icon-name"></svg-icon>
+        <svg-icon icon-class="circle" class="icon-name error-color"></svg-icon>
         Stake <highlight>20 SOTE minimum</highlight> per <highlight>new</highlight> project.
-        Stake your total deposit up to <highlight>10 times, {{options.maxTotalAmount}} SOTE</highlight>.
+        Stake your total deposit up to <highlight>10 times, {{maxTotalAmountShow}} SOTE</highlight>.
         Top up your deposit to stake larger amounts.
       </el-row>
       </el-form>
@@ -150,6 +150,13 @@ export default {
     // 总充值金额，perAmount本次充值金额，totalAmount已经充值金额
     totalAmount(){
       return BigNumber(this.options.perAmount).plus(this.options.totalAmount).toString();
+    },
+    // 总充值金额，perAmount本次充值金额，totalAmount已经充值金额
+    totalAmountShow(){
+      return BigNumber(this.options.perAmount).plus(this.options.totalAmount).toFixed(2, 1).toString();
+    },
+    maxTotalAmountShow(){
+      return BigNumber(this.options.maxTotalAmount).toFixed(2, 1).toString();
     }
   },
   watch: {
@@ -177,7 +184,7 @@ export default {
 
     },
     staked(row){
-      return BigNumber(row.stake.toString()).plus(row.ownerStaked).toString();
+      return BigNumber(row.stake.toString()).plus(row.ownerStaked).toFixed(2, 1).toString();
     },
     // 允许的最大stake总金额
     maxTotalAmount(){

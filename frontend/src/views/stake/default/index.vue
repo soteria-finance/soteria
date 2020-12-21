@@ -84,17 +84,18 @@ export default {
     getDeposit(){
       const contract = this.PooledStaking.getContract();
       contract.instance.stakerDeposit(this.member.account).then(res => {
-        this.options.deposit = this.$etherToNumber(res.toString());
+        this.options.deposit = this.$etherToValue(res.toString());
       });
     },
     getRewards(){
       const contract = this.PooledStaking.getContract();
       contract.instance.stakerReward(this.member.account).then(res => {
-        this.options.rewards = this.$etherToNumber(res.toString());
+        this.options.rewards = this.$etherToValue(res.toString());
       });
     },
     getStakedProjects(){
       const contract = this.PooledStaking.getContract();
+      this.options.stakedProjects = [];
       contract.instance.stakerContractsArray(this.member.account).then(async res => {
         const stakedProjects = res;
         const map = {};
@@ -125,10 +126,10 @@ export default {
         const contract = this.PooledStaking.getContract();
         const instance = contract.instance;
         const ownerStaked = await instance.stakerContractStake(this.member.account, item.address);
-        item.ownerStaked = this.$etherToNumber(ownerStaked.toString());
+        item.ownerStaked = this.$etherToValue(ownerStaked.toString());
 
         const unstaked = await instance.stakerContractPendingUnstakeTotal(this.member.account, item.address);
-        item.unstaked = this.$etherToNumber(unstaked.toString());
+        item.unstaked = this.$etherToValue(unstaked.toString());
         item.unstaking = 0;
       }catch(e){
         console.error(e);

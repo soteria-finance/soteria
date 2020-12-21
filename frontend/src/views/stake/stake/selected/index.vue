@@ -60,7 +60,8 @@ export default {
     },
     // 判断有没有不符合最小stake金额的合约
     isMin(){
-      return this.options.selectedProject.filter(item=>BigNumber(item.stake.toString()).plus(item.ownerStaked).comparedTo(this.settings.stake.minAmountPerContract)<0).length > 0;
+      return this.options.selectedProject.filter(item=>BigNumber(item.stake.toString()).plus(item.ownerStaked)
+            .comparedTo(this.settings.stake.minAmountPerContract)<0).length > 0;
     },
     // 列表中所有合约的最大stake值
     maxPerAmount(){
@@ -68,8 +69,8 @@ export default {
       if(this.options.selectedProject.length==0){
         return 0;
       }
-      return this.options.selectedProject.map(item=>BigNumber(item.stake.toString()).plus(item.ownerStaked))
-                             .reduce((max, item)=> item ? (max>item? max : item) : (max?max:0));
+      return BigNumber(this.options.selectedProject.map(item=>BigNumber(item.stake.toString()).plus(item.ownerStaked))
+                             .reduce((max, item)=> item ? (max>item? max : item) : (max?max:0))).toString();
     },
   },
   watch: {
@@ -112,7 +113,6 @@ export default {
         return true;
       }
       if(this.options.active == 1){
-        console.info(this.options.totalAmount, this.options.totalAmount == 0);
         // 首次充值小于20
         if(this.options.totalAmount == 0 && BigNumber(this.options.perAmount).comparedTo(this.settings.stake.minAmountPerContract) < 0){
           console.error("首次充值金额不能小于20");
@@ -129,7 +129,7 @@ export default {
           return false;
         }
         // 余额不足
-        if(BigNumber(this.$ether(this.options.perAmount.toString()).toString()).comparedTo(BigNumber(this.member.balance.toString())) > 0){
+        if(BigNumber(this.$ether(this.options.perAmount.toString())).comparedTo(BigNumber(this.member.balance.toString())) > 0){
           console.error("余额不足");
           return false;
         }

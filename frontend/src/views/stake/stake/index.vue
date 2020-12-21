@@ -79,7 +79,7 @@ export default {
   created(){
     this.initData();
     this.$Bus.bindEvent(this.$EventNames.switchAccount, this._uid, (account)=>{
-      this.initData();
+      this.$router.push("/system/stake/default");
     });
   },
   destroyed(){
@@ -100,7 +100,7 @@ export default {
         this.options.totalAmount = params.deposit;
         this.options.redirect = params.redirect;
       }
-      
+
       if(this.options.redirect == "deposit"){
         this.options.active = 1;
       }
