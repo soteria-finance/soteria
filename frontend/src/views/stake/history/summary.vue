@@ -17,8 +17,8 @@
         </el-form>
       </div>
       <div style="text-align: center;">
-        <el-button type="primary" plain round size="small" @click="back" style="width:40%;">Back</el-button>
-        <el-button type="primary" round size="small" @click="unstake" style="width:40%;">Unstake</el-button>
+        <el-button type="primary" plain round size="small" @click="back" >Back</el-button>
+        <el-button type="primary" round size="small" @click="unstake" >Unstake</el-button>
       </div>
     </el-card>
   </div>
@@ -48,11 +48,20 @@ export default {
       'settings'
     ]),
     unstaked(){
-      return this.options.stakedProjects.map(item => item.unstaked).reduce((total, item) => BigNumber(total?total:0).plus(item?item:0)).toString();
+      const unstakedMap = this.options.stakedProjects.map(item => item.unstaked);
+      if(unstakedMap.length == 0){
+        return 0;
+      }
+      return unstakedMap.reduce((total, item) => BigNumber(total?total:0).plus(item?item:0)).toString();
     },
     available(){
-      return this.options.stakedProjects.filter(item => !item.unstaked || BigNumber(item.unstaked).eq(0))
-        .map(item => item.ownerStaked).reduce((total, item) => BigNumber(total?total:0).plus(item?item:0)).toString();
+      const availabledMap = this.options.stakedProjects.map(item => {
+        return BigNumber(item.ownerStaked).minus(item.unstaked ? item.unstaked : 0)
+      });
+      if(availabledMap.length == 0){
+        return 0;
+      }
+      return availabledMap.reduce((total, item) => BigNumber(total?total:0).plus(item?item:0)).toString();
     }
   },
   watch: {

@@ -55,11 +55,12 @@
         style="width: 100%">
         <el-table-column
           prop="name"
-          label="PROJECT"
-          width="280">
+          label="PROJECT">
           <template slot-scope="scope">
-            <svg-icon :icon-class="scope.row.icon" class="icon-name"></svg-icon>
-            {{scope.row.name}}
+            <div style="white-space: nowrap;">
+              <img :src="scope.row.icon" class="project-list-icon" />
+              {{scope.row.name}}    
+            </div>
           </template>
         </el-table-column>
         <el-table-column
@@ -82,6 +83,7 @@
           </template>
         </el-table-column>
         <el-table-column
+          width="100"
           label="OPTIONS">
           <template slot-scope="scope">
             <el-link type="primary" v-if="scope.row.stakedStatus != 'staked'" :underline="false" @click="removeProject(scope)">Remove</el-link>
@@ -91,7 +93,7 @@
       </el-table>
       <el-row>
         <div style="text-align: center;">
-          <el-button type="text" @click="addMore">Add more contracts</el-button>
+          <el-button type="text" @click="addMore">Add more projects</el-button>
         </div>
       </el-row>
     </el-card>

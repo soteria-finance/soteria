@@ -142,16 +142,28 @@ export default {
       const contract = this.Claims.getContract();
       const claimId = this.options.claim.claimId.toString();
       const verdict = param.toString();
-      console.info("投票：", claimId, verdict);
-      contract.instance.submitCAVote(claimId, verdict, { from: this.member.account }).then(res => {
-        console.info(res, res.toString());
-        this.loading = false;
-        this.$router.push({ name: this.$RouteNames.CLAIM_DEFAULT });
-      }).catch(e => {
-        console.error(e);
-        this.$message.error(e.message);
-        this.loading = false;
-      });
+      console.info("投票：", claimId, verdict, this.options.claim.assessType);
+      if(this.options.claim.assessType == "CA"){
+        contract.instance.submitCAVote(claimId, verdict, { from: this.member.account }).then(res => {
+          console.info(res, res.toString());
+          this.loading = false;
+          this.$router.push({ name: this.$RouteNames.CLAIM_DEFAULT });
+        }).catch(e => {
+          console.error(e);
+          this.$message.error(e.message);
+          this.loading = false;
+        });
+      }else{
+        contract.instance.submitMemberVote(claimId, verdict, { from: this.member.account }).then(res => {
+          console.info(res, res.toString());
+          this.loading = false;
+          this.$router.push({ name: this.$RouteNames.CLAIM_DEFAULT });
+        }).catch(e => {
+          console.error(e);
+          this.$message.error(e.message);
+          this.loading = false;
+        });
+      }
     }
   }
 }

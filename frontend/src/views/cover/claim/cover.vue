@@ -6,7 +6,7 @@
       </div>
       <div style="margin-bottom: 20px;" v-if="options.active!=2">
         <div style="line-height: 40px;" class="title">
-          <svg-icon :icon-class="options.cover.contract.icon" class="icon-name"></svg-icon>
+          <img :src="options.cover.contract.icon" class="project-large-icon" />
           <span>{{options.cover.contract.name}}</span>
         </div>
         <el-form label-width="120px">
@@ -31,8 +31,8 @@
         </LiBorderRadius>
       </div>
       <div style="text-align: center;">
-        <el-button type="primary" plain round size="small" @click="back" style="width:40%;">Back</el-button>
-        <el-button type="primary" :disabled="!isContinue" round size="small" @click="next" style="width:40%;">{{buttonText[options.active]}}</el-button>
+        <el-button type="primary" plain round size="small" @click="back" >Back</el-button>
+        <el-button type="primary" :disabled="!isContinue" round size="small" @click="next" >{{buttonText[options.active]}}</el-button>
       </div>
     </el-card>
   </div>
@@ -52,7 +52,7 @@ export default {
       // titles: ["Summary", "Summary", "Addresses", "Summary"],
       // buttonText: ["Continue", "Continue", "Submit proof", "Submit claim"],
       titles: ["Summary", "Summary"],
-      buttonText: ["Continue", "Submit claim"],
+      buttonText: ["Submit claim"],
       top: 0,
       isContinue: false,
     }

@@ -30,16 +30,16 @@
             NEW
           </DegreesBadge>
           <div style="line-height: 40px;" class="title">
-            <svg-icon :icon-class="contract.icon" class="icon-name"></svg-icon>
+            <img :src="contract.icon" class="project-large-icon" />
             <span>{{contract.name}}</span>
           </div>
           <el-form label-width="120px">
             <el-form-item label="Contract type">
               {{contract.type}}
             </el-form-item>
-            <el-form-item label="Yearly Cost">
+            <!-- <el-form-item label="Yearly Cost">
               {{contract.yearlyCost}}
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="Capacity">
               {{contract.capacityBNB}} BNB
             </el-form-item>

@@ -13,7 +13,7 @@
       </div>
       <el-form label-width="160px">
       <div style="line-height: 40px;" class="title">
-        <svg-icon :icon-class="options.curContract.icon" class="icon-name"></svg-icon>
+        <img :src="options.curContract.icon" class="project-large-icon" />
         <span>{{options.curContract.name}}</span>
       </div>
       <el-row>
@@ -43,13 +43,15 @@
       <el-divider></el-divider>
       <el-row>
         <el-col :span="14" style="line-height: 35px;">
-          <el-link @click="checked=!checked" :underline="false">
-            <el-checkbox v-model="checked">
+          <div>
+            <el-checkbox v-model="checked" style="vertical-align: middle;">
             </el-checkbox>
+            <el-link @click="checked=!checked" :underline="false" style="display: inline;">
             I agree that Smart Contract Cover is not a contract of insurance.
             Cover is provided on a discretionary basis with Soteria members
             having the final say on with claims are paid.
-          </el-link>
+            </el-link>
+          </div>
         </el-col>
         <el-col :span="10">
           <div style="float: right;">
@@ -164,7 +166,7 @@ export default {
       const contract = this.Quotation.getContract();
       this.loading = true;
       const { coverDetails, coverPeriod, coverCurr, smartCAdd, v, r, s } = this.buildParams();
-      contract.instance.makeCoverUsingNXMTokens(
+      contract.instance.makeCoverUsingSOTETokens(
           coverDetails, coverPeriod, coverCurr, smartCAdd, v, r, s,
           { from: this.member.account }).then(res=>{
         console.info(res, res.toString());

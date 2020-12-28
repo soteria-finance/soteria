@@ -6,7 +6,7 @@
     <div>
       <el-form label-width="120px">
         <div style="line-height: 40px;" class="title">
-          <svg-icon :icon-class="options.curContract.icon" class="icon-name"></svg-icon>
+          <img :src="options.curContract.icon" class="project-large-icon" />
           <span>{{options.curContract.name}}</span>
         </div>
         <el-form-item label="Address:">
@@ -19,8 +19,8 @@
           {{options.curContract.capacityBNB}}
         </el-form-item>
         <div style="text-align: center;">
-          <el-button type="primary" plain round size="small" @click="back" style="width:40%;">Back</el-button>
-          <el-button type="primary" round size="small" @click="getQuote" style="width:40%;">Get quote</el-button>
+          <el-button type="primary" plain round size="small" @click="back" >Back</el-button>
+          <el-button type="primary" round size="small" @click="getQuote" >Get quote</el-button>
         </div>
       </el-form>
     </div>

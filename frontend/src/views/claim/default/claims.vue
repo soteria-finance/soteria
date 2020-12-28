@@ -3,7 +3,7 @@
     id="claim-default-open"
     :data="claims"
     stripe
-    v-loading.fullscreen.lock="loading"
+    v-loading.fullscreen.lock="false"
     element-loading-text="Claims loading ..."
     v-el-table-infinite-scroll="load"
     height="calc(100vh - 300px)"
@@ -17,7 +17,7 @@
       label="PROJECT">
       <template slot-scope="scope">
         <div v-if="scope.row.contract">
-          <svg-icon :icon-class="scope.row.contract.icon" class="icon-name"></svg-icon>
+          <img :src="scope.row.contract.icon" class="project-list-icon" />
           <span>{{scope.row.contract.name}}</span>
         </div>
       </template>
@@ -40,18 +40,15 @@
       prop="status" width="150"
       label="STATUS">
       <template slot-scope="scope">
-        <el-tag v-if="scope.row.voteId > 0" type="info">
-          Already assessed
-        </el-tag>
-        <el-tag v-else :type="claimStatusColors[scope.row.status]" :class="{ 'el-tag-blue': claimStatusColors[scope.row.status]=='' }">
-          {{claimStatus[scope.row.status]}}
+        <el-tag :type="statusFormatForTag(scope.row)">
+          {{statusFormatForValue(scope.row)}}
         </el-tag>
       </template>
     </el-table-column>
     <el-table-column width="100"
       label="ACTION">
       <template slot-scope="scope">
-        <el-link type="primary" :disabled="!member.isMember || scope.row.voteId > 0" v-if="isAssess(scope.row)" :underline="false" @click="assess(scope.row)">Assess</el-link>
+        <el-link type="primary" :disabled="assessed(scope.row)" v-if="canAssess(scope.row)" :underline="false" @click="assess(scope.row)">Assess</el-link>
       </template>
     </el-table-column>
   </el-table>
@@ -65,6 +62,7 @@ import QuotationDataContract from '@/services/QuotationData';
 import Moment from 'moment';
 import { getCoverContracts, loadCover } from '@/api/cover.js';
 import { BigNumber } from 'bignumber.js';
+import { STATUS, statusFormat } from '@/utils/claimStatus.js';
 
 
 export default {
@@ -78,42 +76,10 @@ export default {
       claims: [],
       contracts: [],
       count: null,
-      curId: -1,
+      curId: 0,
       latestLoadTime: null,
       ClaimsData: null,
       QuotationData: null,
-      claimStatus: {
-        "0": "Open to assessors",
-        "1": "Open to all members",
-        "2": "Open to all members",
-        "3": "Open to all members",
-        "4": "Open to all members",
-        "5": "Open to all members",
-        "6": "Denied",
-        "7": "Accepted",
-        "8": "Accepted",
-        "9": "Denied",
-        "10": "Accepted",
-        "11": "Denied",
-        "12": "Payout Pending",
-        "14": "Payout Finished",
-      },
-      claimStatusColors: {
-        "0": "",
-        "1": "warning",
-        "2": "warning",
-        "3": "warning",
-        "4": "warning",
-        "5": "warning",
-        "6": "danger",
-        "7": "success",
-        "8": "success",
-        "9": "danger",
-        "10": "success",
-        "11": "danger",
-        "12": "info",
-        "14": "info",
-      },
       onload: false,
     }
   },
@@ -131,6 +97,12 @@ export default {
     this.initData();
   },
   methods: {
+    statusFormatForValue(row){
+      return statusFormat(row).status;
+    },
+    statusFormatForTag(row){
+      return statusFormat(row).tagType;
+    },
     async initData(){
       await this.initContracts();
       if(this.web3Status === this.WEB3_STATUS.AVAILABLE){
@@ -180,10 +152,14 @@ export default {
       this.getClaims(this.curId, 5);
     },
     async getClaims(start, size){
+      if(this.dataLoading || (this.curId > 0 && start > this.curId)){
+        // 数据加载中，直接返回
+        return;
+      }
       try{
         // 加锁，数据加载中....
         this.dataLoading = true;
-        if(start <= -1){
+        if(start <= 0){
           return;
         }
 
@@ -197,14 +173,13 @@ export default {
         }
         const instance = this.ClaimsData.getContract().instance;
         while(true){
-          if(curload <= -1){
-            this.curId = curload;
+          this.curId = curload;
+          if(curload <= 0){
             // 所有数据加载完成了
             break;
           }
           if(loadCount >= size){
             // 本次数据加载完成了
-            this.curId = curload;
             break;
           }
           // 从缓存读取数据
@@ -212,10 +187,18 @@ export default {
           if(claim){
             // 缓存数据更新状态
             console.info("cache data......");
-            const data = await instance.getClaimStatusNumber(curload.toString());
-            const statno = data.statno.toString();
-            claim.status = statno;
-            this.getVoteId(claim);
+            if(!claim.finished){
+              const data = await instance.getClaimStatusNumber(curload.toString());
+              const statno = data.statno.toString();
+              claim.status = statno;
+              if(BigNumber(statno).gt(5)){
+                claim.finished = true;
+              }else{
+                await this.getVoteId(claim);
+              }
+            }
+            // 缓存数据
+            this.cacheObject(curload.toString(), claim);
             this.claims.push(claim);
             curload --;
             loadCount++;
@@ -234,7 +217,7 @@ export default {
           claim.status = claimData.status.toString();
           claim.vote = claimData.vote.toString();
 
-          this.getVoteId(claim);
+          await this.getVoteId(claim);
           const cover = await loadCover(this, claim.coverId, true, this.contracts);
           claim.cover = cover;
           claim.contract = cover.contract;
@@ -261,8 +244,10 @@ export default {
     },
     async getVoteId(claim){
       const instance = this.ClaimsData.getContract().instance;
-      const voteId = await instance.getUserClaimVoteCA(this.member.account, claim.claimId);
-      claim.voteId = voteId.toString();
+      const caVoteId = await instance.getUserClaimVoteCA(this.member.account, claim.claimId);
+      claim.caVoteId = caVoteId.toString();
+      const mvVoteId = await instance.getUserClaimVoteMember(this.member.account, claim.claimId);
+      claim.mvVoteId = mvVoteId.toString();
     },
     formatPeriod(row){
       if(row.cover && row.cover.validUntil){
@@ -277,8 +262,12 @@ export default {
       this.$emit("assess", row);
       //this.$router.push({ name: this.$RouteNames.COVER_CLAIM, params: JSON.parse(JSON.stringify(row)) });
     },
-    isAssess(row){
-      return BigNumber(row.status).eq(0);
+    canAssess(row){
+      return BigNumber(row.status).lt(6);
+    },
+    assessed(row){
+      return !this.member.isMember || (BigNumber(row.status).eq(0) && BigNumber(row.caVoteId).gt(0)) 
+        || (BigNumber(row.status).lt(6) && BigNumber(row.mvVoteId).gt(0));
     }
   }
 }

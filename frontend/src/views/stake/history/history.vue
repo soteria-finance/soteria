@@ -10,7 +10,7 @@
           prop="name"
           label="PROJECT">
           <template slot-scope="scope">
-            <svg-icon :icon-class="scope.row.icon" class="icon-name"></svg-icon>
+            <img :src="scope.row.icon" class="project-list-icon" />
             {{scope.row.name}}
           </template>
         </el-table-column>
@@ -81,7 +81,7 @@ export default {
     async getHistoryInfo(){
       const instance = this.PooledStaking.getContract().instance;
       const reqId = await instance.lastUnstakeRequestId();
-      let curId = BigNumber(reqId.toString()).minus(1).toString();
+      let curId = reqId.toString();
       const unstakedList = [];
       while(true){
         if(BigNumber(curId).lt(0)){
@@ -114,15 +114,15 @@ export default {
         curId = BigNumber(curId).minus(1).toString();
       }
     },
-    requestDate(row){
+    due(row){
       if(row.unstakeAt){
         return this.$secondsToDateString(row.unstakeAt);  
       }
       return "-";
     },
-    due(row){
+    requestDate(row){
       if(row.unstakeAt){
-        return this.$secondsToDateString(BigNumber(row.unstakeAt).plus(BigNumber(this.settings.unstakedPendingDay).times(24 * 60 * 60)).toString());  
+        return this.$secondsToDateString(BigNumber(row.unstakeAt).minus(BigNumber(this.settings.unstakedPendingDay).times(24 * 60 * 60)).toString());  
       }
       return "-";
     }

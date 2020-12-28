@@ -6,23 +6,21 @@
           <h2 class="main-text">Soteria Staking</h2>
           <span class="normal-text">Earn rewards by staking SOTE on projects you think are secure.</span>
           <span class="right-area">
-            <el-button type="primary" plain round @click="stats">Stats</el-button>
+            <!-- <el-button type="primary" plain round @click="stats">Stats</el-button> -->
             <el-button type="primary" round @click="staking">Start staking</el-button>
           </span>
           <el-divider></el-divider>
         </el-row>
         <div class="overall">
           <el-row class="secondary-text" :gutter="20">
-            <el-col :span="6">CURRENT STAKED</el-col>
-            <el-col :span="6">DEPOSIT USAGE</el-col>
-            <el-col :span="6">TOTAL REWARDS</el-col>
-            <el-col :span="6">ANNUALIZED RETURNS</el-col>
+            <el-col :span="8">CURRENT STAKED</el-col>
+            <el-col :span="8">DEPOSIT USAGE</el-col>
+            <el-col :span="8">TOTAL REWARDS</el-col>
           </el-row>
           <el-row class="highlight" :gutter="20">
-            <el-col :span="6">{{staked}} SOTE</el-col>
-            <el-col :span="6">{{depositUsage}}%</el-col>
-            <el-col :span="6">Unknown</el-col>
-            <el-col :span="6">Unknown</el-col>
+            <el-col :span="8">{{staked}} SOTE</el-col>
+            <el-col :span="8">{{depositUsage}}%</el-col>
+            <el-col :span="8">{{$etherToNumber(member.rewards)}} SOTE</el-col>
           </el-row>
         </div>
       </el-form>

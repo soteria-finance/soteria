@@ -30,7 +30,7 @@ export default {
   props: ["options"],
   data() {
     return {
-     
+
     }
   },
   computed: {

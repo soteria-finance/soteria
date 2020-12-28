@@ -9,7 +9,7 @@
       </div>
       <div style="margin-bottom: 20px;">
         <div style="line-height: 40px;" class="title">
-          <svg-icon :icon-class="options.claim.contract.icon" class="icon-name"></svg-icon>
+          <img :src="options.claim.contract.icon" class="project-large-icon" />
           <span>{{options.claim.contract.name}}</span>
         </div>
         <el-form label-width="120px">
@@ -29,10 +29,10 @@
         </el-form>
       </div>
       <div style="text-align: center;">
-        <el-button type="primary" plain round size="small" @click="back" style="width:40%;">Back</el-button>
-        <el-button v-if="options.active<1" type="primary" :disabled="options.staked=='0'" round size="small" @click="next" style="width:40%;">Continue</el-button>
-        <el-button v-else-if="isAccept" type="primary" :disabled="options.staked=='0'" round size="small" @click="next" style="width:40%;">Accept claim</el-button>
-        <el-button v-else type="primary" :disabled="options.staked=='0'" round size="small" @click="next" style="width:40%;">Deny claim</el-button>
+        <el-button type="primary" plain round size="small" @click="back" >Back</el-button>
+        <el-button v-if="options.active<1" type="primary" :disabled="isContinue" round size="small" @click="next" >Continue</el-button>
+        <el-button v-else-if="isAccept" type="primary" :disabled="isContinue" round size="small" @click="next" >Accept claim</el-button>
+        <el-button v-else type="primary" :disabled="isContinue" round size="small" @click="next" >Deny claim</el-button>
       </div>
     </el-card>
   </div>
@@ -50,7 +50,6 @@ export default {
   data() {
     return {
       top: 0,
-      isContinue: false,
       criteria: {
         incident: "yes",
         bebore: "no",
@@ -78,6 +77,12 @@ export default {
         }
       }
       return criFlag;
+    },
+    isContinue(){
+      if(this.options.claim.assessType == "CA" && BigNumber(this.options.staked).eq(0)){
+        return true;
+      }
+      return false;
     }
   },
   watch: {
