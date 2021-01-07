@@ -4,13 +4,6 @@ This repository provides web3 boilerplate and the basic logic
 necessary to profitably call `liquidateBorrow()` on cToken smart
 contracts.
 
-I've chosen to make it open source in the spirit of
-decentralization... and also because I no longer use it. I now call
-`liquidateBorrow()` from within a flash loan contract, which requires
-more gas (and therefore higher transaction fees). *As such, I cannot
-profitably liquidate low-value (< 0.5 Ξ) accounts. This code (sometimes) can.*
-
-Support me by sending money for coffee: 0x321F954c22B9128BAac787C3241dae977cBBC2e0
 
 ## Installation
 
@@ -99,9 +92,3 @@ user.tokens.forEach(token => {
   }
 });
 ```
-
-## Disclaimer
-
-*USE THIS CODE AT YOUR OWN RISK!* There's no warranty, and I can't promise
-that you'll make money. Please do not trust random developers on the internet
-(even me).
