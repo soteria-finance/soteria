@@ -1,4 +1,4 @@
-# Compound Liquidation Bot
+# Soteria Bot
 
 coming soon...
 
